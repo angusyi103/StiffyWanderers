@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Button } from 'react-native';
 import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Progress from 'react-native-progress';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Map from './Screens/Map';
 import { LinearGradient } from 'react-native-svg';
+import Popup from './Screens/Popup';
 
 function HomeScreen({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -14,8 +16,53 @@ function HomeScreen({ navigation }) {
   const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
-  const [showWaterGif, setShowWaterGif] = useState(false); // State to control GIF visibility
+  const [showWaterGif, setShowWaterGif] = useState(false);
   const [showWindGif, setShowWindGif] = useState(false);
+  const [storedTemp, setStoredTemp] = useState(null);
+  const [progress, setProgress] = useState(0.0);
+  const [popupType, setPopupType] = useState(null);
+
+  // Function to fetch progress from AsyncStorage
+  const loadProgress = async () => {
+    try {
+      const storedProgress = await AsyncStorage.getItem('progress');
+      if (storedProgress !== null) {
+        setProgress(parseFloat(storedProgress)); // Set progress from stored value
+      }
+      console.log('store progress', storedProgress);
+    } catch (error) {
+      console.error('Error loading progress:', error);
+    }
+  };
+
+  // Function to save progress to AsyncStorage
+  const saveProgress = async (progressValue) => {
+    try {
+      await AsyncStorage.setItem('progress', progressValue.toString());
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
+  };
+
+  const storeTemp = async (temp) => {
+    try {
+      await AsyncStorage.setItem('currentTemperature', String(temp));
+    } catch (error) {
+      console.error('Error saving temperature', error);
+    }
+  };
+
+  // Get stored temperature from AsyncStorage
+  const getStoredTemp = async () => {
+    try {
+      const savedTemp = await AsyncStorage.getItem('currentTemperature');
+      if (savedTemp !== null) {
+        setStoredTemp(savedTemp);
+      }
+    } catch (error) {
+      console.error('Error retrieving temperature', error);
+    }
+  };
 
   // Function to fetch weather data
   const fetchWeather = async (latitude, longitude) => {
@@ -35,6 +82,10 @@ function HomeScreen({ navigation }) {
         setRain(false); // Reset if the weather condition is not related to rain
       }
       setRain(true); //For test
+
+      // Store the current temperature in AsyncStorage
+      const currentTemp = Math.round(data.main.temp);
+      storeTemp(currentTemp);
     } catch (error) {
       console.error('Error fetching weather data: ', error);
       setErrorMsg('Error fetching weather data');
@@ -63,9 +114,59 @@ function HomeScreen({ navigation }) {
     setAddress(addressResults[0]); // Get the first result
   };
 
-  const handleWaterPress = () => {
-    console.log('water press');
-    setShowWaterGif((prevState) => !prevState);
+  // Function to get the current date in YYYY-MM-DD format
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  const checkIfBothPressedToday = async () => {
+    const waterPressed = await checkIfActionDoneToday('waterPressDate');
+    const windPressed = await checkIfActionDoneToday('windPressDate');
+    return waterPressed && windPressed;
+  };
+
+  const handleAddProgress = async () => {
+    const bothPressed = await checkIfBothPressedToday();
+    if (bothPressed) {
+      setProgress((prevProgress) => prevProgress + 0.03);
+    }
+  };
+
+  // Check if the action was done today
+  const checkIfActionDoneToday = async (actionKey) => {
+    try {
+      const lastActionDate = await AsyncStorage.getItem(actionKey);
+      const currentDate = getCurrentDate();
+      return lastActionDate === currentDate;
+    } catch (error) {
+      console.error(`Error checking ${actionKey}:`, error);
+      return false;
+    }
+  };
+
+  // Function to store the action date
+  const storeActionDate = async (actionKey) => {
+    try {
+      const currentDate = getCurrentDate();
+      await AsyncStorage.setItem(actionKey, currentDate);
+    } catch (error) {
+      console.error(`Error storing ${actionKey}:`, error);
+    }
+  };
+
+  const handleWaterPress = async () => {
+    const actionKey = 'waterPressDate';
+    const isDoneToday = await checkIfActionDoneToday(actionKey);
+
+    if (!isDoneToday) {
+      setShowWaterGif((prevState) => !prevState);
+      await storeActionDate(actionKey); // Store today's date after press
+      await handleAddProgress(); // Check if both pressed, then add progress
+    } else {
+      handleGifClose();
+      console.log('Water button has already been pressed today.');
+    }
   };
 
   const handleGifClose = () => {
@@ -73,33 +174,68 @@ function HomeScreen({ navigation }) {
     setShowWindGif(false);
   };
 
-  const handleWindPress = () => {
-    console.log('wind press');
-    setShowWindGif((prevState) => !prevState);
+  const handleWindPress = async () => {
+    const actionKey = 'windPressDate';
+    const isDoneToday = await checkIfActionDoneToday(actionKey);
+
+    if (!isDoneToday) {
+      setShowWindGif((prevState) => !prevState);
+      await storeActionDate(actionKey); // Store today's date after press
+      await handleAddProgress(); // Check if both pressed, then add progress
+    } else {
+      handleGifClose();
+      console.log('Wind button has already been pressed today.');
+    }
+  };
+
+  const showPopup = (type) => {
+    setPopupType(type);
+  };
+
+  const closePopup = () => {
+    setPopupType(null);
   };
 
   useEffect(() => {
+    loadProgress();
     getLocation();
+    getStoredTemp();
   }, []);
 
   useEffect(() => {
     if (location) {
-      fetchWeather(location.coords.latitude, location.coords.longitude);
+      // fetchWeather(location.coords.latitude, location.coords.longitude);
     }
   }, [location]);
+
+  useEffect(() => {
+    saveProgress(progress);
+  }, [progress]);
 
   let addressText = 'Fetching address...';
   if (address) {
     addressText = `${address.city || ''}, ${address.region || ''}, ${address.country || ''}`;
   }
 
-  if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />; // Show loading indicator
-  }
+  // if (loading) {
+  //   return <ActivityIndicator size="large" color="#0000ff" />; // Show loading indicator
+  // }
 
   if (errorMsg) {
     return <Text>{errorMsg}</Text>; // Show error message
   }
+
+  const reset = async () => {
+    setProgress(0); // Set the progress state to zero
+    try {
+      await AsyncStorage.removeItem('waterPressDate');
+      await AsyncStorage.removeItem('windPressDate');
+
+      console.log('Wind and water times have been reset.');
+    } catch (error) {
+      console.error('Error resetting wind and water times:', error);
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -135,6 +271,15 @@ function HomeScreen({ navigation }) {
         </View>
 
         <View style={styles.textContainer}>
+          {/* For test */}
+          <Button title="Show Hello Popup" onPress={() => showPopup('hello')} />
+          <Button title="Show Level Up Popup" onPress={() => showPopup('level up')} />
+          <Button title="Show New Area Popup" onPress={() => showPopup('new area')} />
+          {popupType && <Popup type={popupType} onClose={closePopup} />}
+          <TouchableOpacity style={styles.actionButton} onPress={reset}>
+            <Image source={require('./assets/water.png')} />
+          </TouchableOpacity>
+
           <View style={styles.dayContainer}>
             <Text style={styles.dayTitle}>Day</Text>
             <Text style={styles.day}>1</Text>
@@ -144,7 +289,7 @@ function HomeScreen({ navigation }) {
 
         <View style={styles.actionWrapper}>
           <View style={styles.progressContainer}>
-            <Progress.Bar progress={0.3} height={15} width={400} color="white" style={styles.verticalBar} borderRadius={20} />
+            <Progress.Bar progress={progress} height={15} width={400} color="white" style={styles.verticalBar} borderRadius={20} />
           </View>
           <Text style={styles.processText}>Weathering{'\n'}Process</Text>
           <View style={styles.buttonContainer}>
@@ -272,11 +417,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     color: '#fff',
   },
-  dayContainer:{
+  dayContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
   },
-  dayTitle:{
+  dayTitle: {
     color: '#fff',
     marginBottom: 10,
     fontWeight: 'bold',
