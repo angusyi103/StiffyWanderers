@@ -45,15 +45,15 @@ function HomeScreen({ navigation }) {
               <Image style={styles.weatherIcon} source={require('./assets/sun_n_cloud.png')} resizeMode="contain" />
             </View>
             <View style={styles.locationContainer}>
-              <Image style={styles.iconW} source={require('./assets/location-dot-solid.svg')} />
-              <Text>{locationText}</Text>
+              <Image style={styles.iconW} source={require('./assets/location-dot-solid1.png')} />
+              <Text style={styles.locationText}>{locationText}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.textContainer}>
           <Text style={styles.day}>Day 1</Text>
-          <Text>Stiffy Wanderers</Text>
+          <Text style={styles.name}>Stiffy Wanderers</Text>
         </View>
 
         <View style={styles.buttonContainer}>
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   weatherInfo: {
     padding: 20,
     flexDirection: 'column', // Change to column for proper stacking
-    alignItems: 'center', // Center elements horizontally
+    alignItems: 'end', // Center elements horizontally
   },
   temperatureContainer: {
     flexDirection: 'row',
@@ -133,25 +133,35 @@ const styles = StyleSheet.create({
     width: 50, // Increase width for better visibility
     height: 50,
     marginLeft: 10, // Add spacing between temperature and icon
+    paddingBottom: 0,
   },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
     marginTop: 10,
   },
+  locationText:{
+    color: '#fff',
+  },
   iconW: {
-    width: 20,
-    height: 20,
+    width: 12,
+    height: 16,
     marginRight: 5,
   },
   textContainer: {
     bottom: 50,
     left: 30,
     alignItems: 'flex-start',
+    color: '#fff',
   },
   day: {
     fontSize: 32,
     fontWeight: 'bold',
+    color: '#fff',
+  },
+  name:{
+    color: '#fff',
   },
   buttonContainer: {
     position: 'absolute', // Make sure it's positioned absolutely
