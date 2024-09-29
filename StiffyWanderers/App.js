@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
@@ -6,8 +6,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as Progress from 'react-native-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Map from './Screens/Map';
-import { LinearGradient } from 'react-native-svg';
 import Popup from './Screens/Popup';
+import { Video } from 'expo-av';
 
 function HomeScreen({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -24,6 +24,9 @@ function HomeScreen({ navigation }) {
   const [progress, setProgress] = useState(0.0);
   const [popupType, setPopupType] = useState(null);
   const [popupVisible, setPopupVisible] = useState(true);
+  const [jumpLoc, setJumpLoc] = useState(false);
+  const video = useRef(null);
+  const [showVideo, setShowVideo] = useState(false);
 
   // Function to fetch progress from AsyncStorage
   const loadProgress = async () => {
@@ -204,8 +207,8 @@ function HomeScreen({ navigation }) {
 
     if (!isDoneToday) {
       setShowWindGif((prevState) => !prevState);
-      await storeActionDate(actionKey); // Store today's date after press
-      await handleAddProgress(); // Check if both pressed, then add progress
+      await storeActionDate(actionKey);
+      await handleAddProgress();
     } else {
       handleGifClose();
       console.log('Wind button has already been pressed today.');
@@ -213,8 +216,10 @@ function HomeScreen({ navigation }) {
   };
 
   const closePopup = () => {
-    setPopupVisible(false);  // Hide popup
+    setPopupVisible(false);
+    setJumpLoc(false);
   };
+
   useEffect(() => {
     loadProgress();
     getLocation();
@@ -240,7 +245,8 @@ function HomeScreen({ navigation }) {
   }
 
   const reset = async () => {
-    setProgress(0); // Set the progress state to zero
+    setShowVideo(true);
+    // setProgress(100); // Set the progress state to zero
     try {
       await AsyncStorage.removeItem('waterPressDate');
       await AsyncStorage.removeItem('windPressDate');
@@ -260,7 +266,8 @@ function HomeScreen({ navigation }) {
       longitude: newLocation.coords.longitude,
     });
 
-    setAddress(addressResults[0]); // Set the first result
+    setAddress(addressResults[0]);
+    setJumpLoc(true);
   };
 
   useEffect(() => {
@@ -280,10 +287,13 @@ function HomeScreen({ navigation }) {
           source={require('./assets/rain-bg.png')} // The image to show when it rains
         />
       )}
+
+      {showVideo && <Video source={require('./assets/upgrade-plus-popup.mp4')} resizeMode="cover" style={styles.finalVideo} shouldPlay={true} />}
+
       <View style={[styles.bgB, { backgroundColor: rain ? 'transparent' : '#61A5DB' }]}>
-        {progress === 0 && popupVisible && (
-          <Popup type="hello" onClose={closePopup} />
-        )}
+        {progress === 0 && popupVisible && <Popup type="hello" onClose={closePopup} />}
+
+        {jumpLoc && popupVisible && <Popup type="new area" onClose={closePopup} />}
 
         {showWaterGif && <Image style={styles.waterGif} source={require('./assets/water.gif')} />}
         {showWindGif && <Image style={styles.windGif} source={require('./assets/hairdry.gif')} />}
@@ -448,6 +458,13 @@ const styles = StyleSheet.create({
   locationText: {
     color: '#fff',
   },
+  backgroundVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
   iconW: {
     width: 12,
     height: 16,
@@ -544,5 +561,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  finalVideo: {
+    width: '100%',
+    height: '100%',
+    top: 0,
   },
 });
