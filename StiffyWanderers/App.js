@@ -94,6 +94,7 @@ function HomeScreen({ navigation }) {
     <View style={{ flex: 1 }}>
       <View style={styles.bgB}>
         {showWaterGif && <Image style={styles.waterGif} source={require('./assets/water.gif')} />}
+        {showWindGif && <Image style={styles.windGif} source={require('./assets/hairdryer.gif')} />}
 
         <Image style={styles.bgDown} source={require('./assets/morning-down2.png')} />
         <Image style={styles.sun} source={require('./assets/sun.png')} />
@@ -126,8 +127,8 @@ function HomeScreen({ navigation }) {
             <TouchableOpacity style={styles.actionButton} onPress={handleWaterPress}>
               <Image source={require('./assets/water.png')} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Image source={require('./assets/wind.png')} onPress={handleWindPress} />
+            <TouchableOpacity style={styles.actionButton} onPress={handleWindPress}>
+              <Image source={require('./assets/wind.png')} />
             </TouchableOpacity>
             <TouchableOpacity style={[styles.actionButton, styles.mapIcon]} onPress={() => navigation.navigate('Map', { location })}>
               <Image source={require('./assets/map.png')} />
@@ -172,6 +173,11 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     zIndex: 10,
+  },
+  windGif: {
+    justifyContent: 'center',
+    width: 200,
+    height: 200,
   },
   bgDown: {
     position: 'absolute',
