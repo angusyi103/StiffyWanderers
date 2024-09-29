@@ -4,10 +4,12 @@ import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Progress from 'react-native-progress';
+import Map from './Screens/Map';
 
 function HomeScreen({ navigation }) {
   const [location, setLocation] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
+  const [rain, setRain] = useState(false);
   const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
@@ -20,10 +22,17 @@ function HomeScreen({ navigation }) {
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=2c943a8c60ceab50d7013af3fed83e14`
       );
-      console.log(response);
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
+      console.log('weather', data);
       setWeatherData(data);
+
+      const weatherCondition = data.weather[0].main.toLowerCase();
+      if (['rain', 'shower rain', 'thunderstorm', 'snow'].includes(weatherCondition)) {
+        setRain(true);
+      } else {
+        setRain(false); // Reset if the weather condition is not related to rain
+      }
     } catch (error) {
       console.error('Error fetching weather data: ', error);
       setErrorMsg('Error fetching weather data');
@@ -71,20 +80,21 @@ function HomeScreen({ navigation }) {
     getLocation();
   }, []);
 
-  // useEffect(() => {
-  //   if (location) {
-  //     fetchWeather(location.coords.latitude, location.coords.longitude);
-  //   }
-  // }, [location]);
+  useEffect(() => {
+    setRain(true); //For test
+    if (!location) {
+      fetchWeather(location.coords.latitude, location.coords.longitude);
+    }
+  }, [location]);
 
   let addressText = 'Fetching address...';
   if (address) {
     addressText = `${address.city || ''}, ${address.region || ''}, ${address.country || ''}`;
   }
 
-  // if (loading) {
-  //   return <ActivityIndicator size="large" color="#0000ff" />; // Show loading indicator
-  // }
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />; // Show loading indicator
+  }
 
   if (errorMsg) {
     return <Text>{errorMsg}</Text>; // Show error message
@@ -92,12 +102,18 @@ function HomeScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={styles.bgB}>
+      {rain && (
+        <Image
+          style={styles.rainOverlayImage}
+          source={require('./assets/rain-bg.png')} // The image to show when it rains
+        />
+      )}
+      <View style={[styles.bgB, { backgroundColor: rain ? '#8B94AE' : '#61A5DB' }]}>
         {showWaterGif && <Image style={styles.waterGif} source={require('./assets/water.gif')} />}
         {showWindGif && <Image style={styles.windGif} source={require('./assets/hairdry.gif')} />}
 
-        <Image style={styles.bgDown} source={require('./assets/morning-down2.png')} />
-        <Image style={styles.sun} source={require('./assets/sun.png')} />
+        <Image style={styles.bgDown} source={rain ? require('./assets/rain-down.png') : require('./assets/morning-down2.png')} />
+        <Image style={styles.sun} source={rain ? require('./assets/clouds.png') : require('./assets/sun.png')} />
 
         <View style={styles.infoContainer}>
           <View style={styles.weatherInfo}>
@@ -156,6 +172,14 @@ export default function App() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  rainOverlayImage: {
+    position: 'absolute',  // To overlay on top of bgB
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 1,  // Ensure it's on top
   },
   bgB: {
     position: 'relative',
