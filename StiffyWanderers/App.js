@@ -281,7 +281,7 @@ function HomeScreen({ navigation }) {
           </TouchableOpacity>
 
           <View style={styles.dayContainer}>
-            <Text style={styles.dayTitle}>Day</Text>
+            <Text style={styles.dayTitle}>DAY</Text>
             <Text style={styles.day}>1</Text>
           </View>
           <Text style={styles.name}>Stiffy Wanderers</Text>
