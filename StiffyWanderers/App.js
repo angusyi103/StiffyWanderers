@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Button } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -21,6 +21,7 @@ function HomeScreen({ navigation }) {
   const [storedTemp, setStoredTemp] = useState(null);
   const [progress, setProgress] = useState(0.0);
   const [popupType, setPopupType] = useState(null);
+  const [popupVisible, setPopupVisible] = useState(true);
 
   // Function to fetch progress from AsyncStorage
   const loadProgress = async () => {
@@ -188,12 +189,8 @@ function HomeScreen({ navigation }) {
     }
   };
 
-  const showPopup = (type) => {
-    setPopupType(type);
-  };
-
   const closePopup = () => {
-    setPopupType(null);
+    setPopupVisible(false);  // Hide popup
   };
 
   useEffect(() => {
@@ -246,6 +243,10 @@ function HomeScreen({ navigation }) {
         />
       )}
       <View style={[styles.bgB, { backgroundColor: rain ? 'transparent' : '#61A5DB' }]}>
+        {progress === 0 && popupVisible && (
+          <Popup type="hello" onClose={closePopup} />
+        )}
+
         {showWaterGif && <Image style={styles.waterGif} source={require('./assets/water.gif')} />}
         {showWindGif && <Image style={styles.windGif} source={require('./assets/hairdry.gif')} />}
 
@@ -272,10 +273,10 @@ function HomeScreen({ navigation }) {
 
         <View style={styles.textContainer}>
           {/* For test */}
-          <Button title="Show Hello Popup" onPress={() => showPopup('hello')} />
+          {/* <Button title="Show Hello Popup" onPress={() => showPopup('hello')} />
           <Button title="Show Level Up Popup" onPress={() => showPopup('level up')} />
           <Button title="Show New Area Popup" onPress={() => showPopup('new area')} />
-          {popupType && <Popup type={popupType} onClose={closePopup} />}
+          {popupType && <Popup type={popupType} onClose={closePopup} />} */}
           <TouchableOpacity style={styles.actionButton} onPress={reset}>
             <Image source={require('./assets/water.png')} />
           </TouchableOpacity>
@@ -490,5 +491,17 @@ const styles = StyleSheet.create({
   },
   cW: {
     color: '#fff',
+  },
+  customButton: {
+    backgroundColor: '#2400FF',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });

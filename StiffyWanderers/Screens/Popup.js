@@ -1,58 +1,83 @@
 import React from 'react';
-import { StyleSheet, View, Button, Image, Text } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image, Text } from 'react-native';
 
 export default function Popup({ type, onClose }) {
   return (
-    <View style={styles.container}>
+    <View style={styles.popupContainer}>
       {type === 'hello' && (
-        <>
-          <Text style={styles.text}>HELLO STIFFY TRAINER😎︎</Text>
+        <View style={styles.popup}>
           <Image style={styles.img} source={require('../assets/hello.png')} />
-          <Text style={styles.text}>YOU ARE NOW AN Level 1: Rock-in-Training ROCK</Text>
-          <Button title="OKAY!" onPress={onClose} />
-        </>
+          <TouchableOpacity style={styles.btn} onPress={onClose}>
+            <Text style={styles.btnText}>OKAY!</Text>
+          </TouchableOpacity>
+        </View>
       )}
       {type === 'level up' && (
-        <>
-          <Text style={styles.text}>LEVEL UP‼️</Text>
+        <View style={styles.popup}>
           <Image style={styles.img} source={require('../assets/levelup.png')} />
-          <Text style={styles.text}>YOU ARE NOW AN Level 2: Slightly Stronger ROCK</Text>
-          <Button title="OKAY!" onPress={onClose} />
-        </>
+          <TouchableOpacity style={styles.btn} onPress={onClose}>
+            <Text style={styles.btnText}>OKAY!</Text>
+          </TouchableOpacity>
+        </View>
       )}
       {type === 'new area' && (
-        <>
-          <Text style={styles.text}>NEW AREA!!</Text>
+        <View style={styles.popup}>
           <Image style={styles.img} source={require('../assets/area.png')} />
-          <Text style={styles.text}>Explore your surroundings!</Text>
-          <Button title="GET GIFT!" onPress={onClose} />
-        </>
+          <TouchableOpacity style={styles.btn} onPress={onClose}>
+            <Text style={styles.btnText}>GET GIFT!</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  popupContainer: {
+    width: '100%',
+    height: '100%',
+    zIndex: 999,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    justifyContent: 'center', // Center the popup vertically
+    alignItems: 'center',     // Center the popup horizontally
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional: dim the background
+  },
+  popup: {
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    backgroundColor: '#FBFCD8', // Popup background color
     padding: 20,
     borderRadius: 10,
-    position: 'absolute',
-    top: '25%',
-    left: '10%',
-    right: '10%',
+    width: 320,
+    height: 530,
+    zIndex: 1000,
+    borderColor: 'black',
+    borderWidth: 4,
   },
   img: {
-    width: 100,
-    height: 100,
-    marginVertical: 10,
+    width: 380,  // Set an explicit width
+    height: 340, // Set an explicit height
+    resizeMode: 'contain',  // Ensures the image scales properly
+    marginBottom: 20,
   },
-  text: {
+  btn: {
+    backgroundColor: '#2400FF',
+    paddingTop: 10,
+    borderRadius: 5,
+    marginTop: 20,
+    width: 200,
+    height: 60,
+    borderColor: 'black',
+    borderWidth: 4,
+  },
+  btnText: {
+    fontWeight: 'bold',
     color: '#fff',
+    fontSize: 24,
     textAlign: 'center',
-    marginBottom: 10,
+    
   },
 });
