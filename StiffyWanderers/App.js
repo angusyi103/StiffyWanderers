@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Animated, Easing } from 'react-native';
 import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -25,8 +25,10 @@ function HomeScreen({ navigation }) {
   const [popupType, setPopupType] = useState(null);
   const [popupVisible, setPopupVisible] = useState(true);
   const [jumpLoc, setJumpLoc] = useState(false);
-  const video = useRef(null);
+  const videoRef = useRef(null);
   const [showVideo, setShowVideo] = useState(false);
+  const [showOpeningVideo, setShowOpeningVideo] = useState(true);
+  const shakeY = useRef(new Animated.Value(0)).current;
 
   // Function to fetch progress from AsyncStorage
   const loadProgress = async () => {
@@ -220,6 +222,14 @@ function HomeScreen({ navigation }) {
     setJumpLoc(false);
   };
 
+  const handlePlaybackStatusUpdate = (status) => {
+    console.log('Playback status:', status); // Debugging to check status
+    if (status.didJustFinish) {
+      console.log('Video finished playing');
+      setShowOpeningVideo(false); // Hide the video after it finishes playing
+    }
+  };
+
   useEffect(() => {
     loadProgress();
     getLocation();
@@ -239,6 +249,29 @@ function HomeScreen({ navigation }) {
   // if (loading) {
   //   return <ActivityIndicator size="large" color="#0000ff" />; // Show loading indicator
   // }
+
+  useEffect(() => {
+    const shakeAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shakeY, {
+          toValue: 10, // Move up by 10 units
+          duration: 1000, // Duration of 1 second (adjust for slower or faster animation)
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeY, {
+          toValue: 0, // Move down by 10 units
+          duration: 1000,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    shakeAnimation.start(); // Start the animation loop
+
+    return () => shakeAnimation.stop(); // Clean up the animation on component unmount
+  }, [shakeY]);
 
   if (errorMsg) {
     return <Text>{errorMsg}</Text>; // Show error message
@@ -288,6 +321,7 @@ function HomeScreen({ navigation }) {
         />
       )}
 
+      {/* {showOpeningVideo && <Video ref={videoRef} source={require('./assets/opening.mp4')} resizeMode="cover" style={styles.finalVideo} shouldPlay={true} onPlaybackStatusUpdate={handlePlaybackStatusUpdate} onError={(e) => console.error('Video error:', e)}/>} */}
       {showVideo && <Video source={require('./assets/upgrade-plus-popup.mp4')} resizeMode="cover" style={styles.finalVideo} shouldPlay={true} />}
 
       <View style={[styles.bgB, { backgroundColor: rain ? 'transparent' : '#61A5DB' }]}>
@@ -300,8 +334,12 @@ function HomeScreen({ navigation }) {
 
         <Image style={styles.bgDown} source={rain ? require('./assets/rain-down.png') : require('./assets/morning-down2.png')} />
         {rain ? (
-          <Image style={styles.clouds} source={require('./assets/clouds.png')} />
+          <Animated.Image
+            style={[styles.clouds, { transform: [{ translateY: shakeY }] }]} // Apply shake animation
+            source={require('./assets/clouds.png')}
+          />
         ) : (
+          // <Image style={styles.clouds} source={require('./assets/clouds.png')} />
           <Image style={styles.sun} source={require('./assets/sun.png')} />
         )}
 
