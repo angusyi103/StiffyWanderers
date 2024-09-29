@@ -94,7 +94,7 @@ function HomeScreen({ navigation }) {
     <View style={{ flex: 1 }}>
       <View style={styles.bgB}>
         {showWaterGif && <Image style={styles.waterGif} source={require('./assets/water.gif')} />}
-        {showWindGif && <Image style={styles.windGif} source={require('./assets/hairdryer.gif')} />}
+        {showWindGif && <Image style={styles.windGif} source={require('./assets/hairdry.gif')} />}
 
         <Image style={styles.bgDown} source={require('./assets/morning-down2.png')} />
         <Image style={styles.sun} source={require('./assets/sun.png')} />
