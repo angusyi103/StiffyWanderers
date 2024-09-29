@@ -166,9 +166,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#61A5DB',
   },
   waterGif: {
-    justifyContent: 'center',
-    width: 300,
-    height: 300,
+    position: 'absolute',
+    top: 180,
+    left: 100,
+    width: 200,
+    height: 200,
+    zIndex: 10,
   },
   bgDown: {
     position: 'absolute',
