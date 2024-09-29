@@ -33,6 +33,7 @@ function HomeScreen({ navigation }) {
       } else {
         setRain(false); // Reset if the weather condition is not related to rain
       }
+      setRain(true); //For test
     } catch (error) {
       console.error('Error fetching weather data: ', error);
       setErrorMsg('Error fetching weather data');
@@ -84,7 +85,6 @@ function HomeScreen({ navigation }) {
     if (location) {
       fetchWeather(location.coords.latitude, location.coords.longitude);
     }
-    setRain(true); //For test
   }, [location]);
 
   let addressText = 'Fetching address...';
