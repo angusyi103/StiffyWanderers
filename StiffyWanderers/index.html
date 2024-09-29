@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <section>
+        <div class="bg-b d-flex justify-content-between">
+            <div class="d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex align-items-bottom">
+                        <h2>20</h2>
+                        <p style="margin-bottom: 8px;">°C</p>
+                        <img class="weather" src="assets/sun n cloud.png" alt="">
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <img class="icon-w" src="assets/location-dot-solid.svg" alt="">
+                        <p>I am address</p>
+                    </div>
+                </div>
+                <div>
+                    <h2>Day 1</h2>
+                    <p>Stiffy Wanderers</p>
+                </div>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+                <div class="process">
+
+                </div>
+                <button class="d-block acting">
+                    <img src="assets/droplet-solid.svg" alt="">
+                </button>
+                <button class="d-block acting">
+                    <img src="assets/wind-solid.svg" alt="">
+                </button>
+                <button class="d-block map-icon" style="margin-top: 10px;">
+                    <img src="assets/map-location-dot-solid.svg" alt="">
+                    <p class="c-w">Map</p>
+                </button>
+            </div>
+            <img class="bg-down" src="assets/morning-down.png" alt="">
+        </div>
+    </section>
+    <style>
+        body{
+            margin: 0 auto;
+            padding: 0;
+            color: #fff;
+            font-family: "Roboto", sans-serif;
+            background-color: #61A5DB;
+        }
+        .bg-b{
+            border: #111 solid 4px;
+            position: relative;
+            width: auto;
+            padding: 20px;
+            height: 700px;
+        }
+        .bg-down{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            z-index: -1;
+            height: auto;
+            width: 100%;
+        }
+        h2{
+            font-size: 50px;
+            margin: 0;
+            padding-right: 3px;
+        }
+        p{
+            margin:0px;
+        }
+        .icon-w{
+            fill: #fff;
+            width: 10px;
+            margin-right: 3px;
+        }
+        .c-w{
+            color: #fff;
+        }
+        .weather{
+            width: 40px;
+            height: 100%;
+            margin-left: 5px;
+            margin-bottom: 10px;
+        }
+        .acting{
+            border: #fff solid 2px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 35px;
+            height: 35px;
+            background: transparent;
+            text-align: center;
+            margin: 5px;
+            padding: 2px 6px;
+        }
+        .map-icon{
+            width: 50px;
+            background: transparent;
+            border: none;
+        }
+        .d-flex{
+            display: flex;
+        }
+        .d-block{
+            display: block;
+        }
+        .justify-content-between{
+            justify-content: space-between;
+        }
+        .justify-content-center{
+            justify-content: center;
+        }
+        .align-items-bottom{
+            align-items: flex-end;
+        }
+        .align-items-center{
+            align-items: center;
+        }
+        .flex-column{
+            display: flex;
+            flex-direction: column;
+        }
+        .roboto-regular {
+        font-family: "Roboto", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        }
+
+        .roboto-medium {
+        font-family: "Roboto", sans-serif;
+        font-weight: 500;
+        font-style: normal;
+        }
+
+        .roboto-bold {
+        font-family: "Roboto", sans-serif;
+        font-weight: 700;
+        font-style: normal;
+        }
+    </style>
+</body>
+</html>
