@@ -113,7 +113,11 @@ function HomeScreen({ navigation }) {
         {showWindGif && <Image style={styles.windGif} source={require('./assets/hairdry.gif')} />}
 
         <Image style={styles.bgDown} source={rain ? require('./assets/rain-down.png') : require('./assets/morning-down2.png')} />
-        <Image style={styles.sun} source={rain ? require('./assets/clouds.png') : require('./assets/sun.png')} />
+        {rain ? (
+          <Image style={styles.clouds} source={require('./assets/clouds.png')} />
+        ) : (
+          <Image style={styles.sun} source={require('./assets/sun.png')} />
+        )}
 
         <View style={styles.infoContainer}>
           <View style={styles.weatherInfo}>
@@ -174,12 +178,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rainOverlayImage: {
-    position: 'absolute',  // To overlay on top of bgB
+    position: 'absolute', // To overlay on top of bgB
     top: 0,
     left: 0,
     width: '100%',
     height: '100%',
-    zIndex: -1,  // Ensure it's on top
+    zIndex: -1, // Ensure it's on top
     backgroundColor: '#8B94AE',
   },
   bgB: {
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 4,
     borderBottomColor: '#111',
     backgroundColor: '#61A5DB',
-    zIndex:-1,
+    zIndex: -1,
   },
   waterGif: {
     position: 'absolute',
@@ -271,6 +275,9 @@ const styles = StyleSheet.create({
   },
   name: {
     color: '#fff',
+  },
+  clouds: {
+
   },
   sun: {
     position: 'absolute',
