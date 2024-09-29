@@ -11,9 +11,11 @@ import Popup from './Screens/Popup';
 
 function HomeScreen({ navigation }) {
   const [location, setLocation] = useState(null);
+  const [locationFetched, setLocationFetched] = useState(false);
   const [weatherData, setWeatherData] = useState(null);
   const [rain, setRain] = useState(false);
   const [address, setAddress] = useState(null);
+  const [addressText, setAddressText] = useState('Fetching address...');
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [showWaterGif, setShowWaterGif] = useState(false);
@@ -79,12 +81,21 @@ function HomeScreen({ navigation }) {
       const weatherCondition = data.weather[0].main.toLowerCase();
       if (['rain', 'shower rain', 'thunderstorm', 'snow'].includes(weatherCondition)) {
         setRain(true);
-      } else {
-        setRain(false); // Reset if the weather condition is not related to rain
-      }
-      setRain(true); //For test
 
-      // Store the current temperature in AsyncStorage
+        const currentDate = new Date().toDateString();
+        const storedDate = await AsyncStorage.getItem('lastUpdateDate');
+        const storedProgress = await AsyncStorage.getItem('progress');
+        if (storedDate !== currentDate) {
+          const newProgress = Math.min((parseFloat(storedProgress) || 0) + 0.05, 1);
+          setProgress(newProgress);
+          await AsyncStorage.setItem('progress', newProgress.toString());
+          await AsyncStorage.setItem('lastUpdateDate', currentDate);
+        }
+      } else {
+        setRain(false);
+      }
+      // setRain(true); //For test
+
       const currentTemp = Math.round(data.main.temp);
       storeTemp(currentTemp);
     } catch (error) {
@@ -97,6 +108,8 @@ function HomeScreen({ navigation }) {
 
   // Function to get current location
   const getLocation = async () => {
+    if (locationFetched) return;
+
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
       setErrorMsg('Permission to access location was denied');
@@ -106,6 +119,7 @@ function HomeScreen({ navigation }) {
 
     let loc = await Location.getCurrentPositionAsync({});
     setLocation(loc);
+    setLocationFetched(true);
 
     let addressResults = await Location.reverseGeocodeAsync({
       latitude: loc.coords.latitude,
@@ -130,7 +144,16 @@ function HomeScreen({ navigation }) {
   const handleAddProgress = async () => {
     const bothPressed = await checkIfBothPressedToday();
     if (bothPressed) {
-      setProgress((prevProgress) => prevProgress + 0.03);
+      setProgress((prevProgress) => {
+        const newProgress = prevProgress + 0.03;
+
+        // Check if the new progress is 100%
+        console.log('progress', newProgress);
+        if (newProgress >= 1) {
+          setShowVideo(true); // Show the video
+        }
+        return newProgress;
+      });
     }
   };
 
@@ -192,7 +215,6 @@ function HomeScreen({ navigation }) {
   const closePopup = () => {
     setPopupVisible(false);  // Hide popup
   };
-
   useEffect(() => {
     loadProgress();
     getLocation();
@@ -201,18 +223,13 @@ function HomeScreen({ navigation }) {
 
   useEffect(() => {
     if (location) {
-      // fetchWeather(location.coords.latitude, location.coords.longitude);
+      fetchWeather(location.coords.latitude, location.coords.longitude);
     }
   }, [location]);
 
   useEffect(() => {
     saveProgress(progress);
   }, [progress]);
-
-  let addressText = 'Fetching address...';
-  if (address) {
-    addressText = `${address.city || ''}, ${address.region || ''}, ${address.country || ''}`;
-  }
 
   // if (loading) {
   //   return <ActivityIndicator size="large" color="#0000ff" />; // Show loading indicator
@@ -233,6 +250,27 @@ function HomeScreen({ navigation }) {
       console.error('Error resetting wind and water times:', error);
     }
   };
+
+  const manualSetLoc = async () => {
+    const newLocation = { coords: { latitude: 25.033964, longitude: 121.564468 } };
+    setLocation(newLocation); // Update state
+
+    let addressResults = await Location.reverseGeocodeAsync({
+      latitude: newLocation.coords.latitude, // Use newLocation instead of location state
+      longitude: newLocation.coords.longitude,
+    });
+
+    setAddress(addressResults[0]); // Set the first result
+  };
+
+  useEffect(() => {
+    if (address) {
+      const formattedAddress = `${address.city || ''}, ${address.region || ''}, ${address.country || ''}`.trim();
+      setAddressText(formattedAddress);
+    } else {
+      setAddressText('Fetching address...');
+    }
+  }, [address]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -279,6 +317,9 @@ function HomeScreen({ navigation }) {
           {popupType && <Popup type={popupType} onClose={closePopup} />} */}
           <TouchableOpacity style={styles.actionButton} onPress={reset}>
             <Image source={require('./assets/water.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={manualSetLoc}>
+            <Image source={require('./assets/wind.png')} />
           </TouchableOpacity>
 
           <View style={styles.dayContainer}>
