@@ -67,7 +67,7 @@ function HomeScreen({ navigation }) {
               borderRadius={20}
             />
           </View>
-
+          <Text style={styles.processText}>Weathering{'\n'}Process</Text>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.actionButton}>
               <Image source={require('./assets/water.png')} />
@@ -198,6 +198,13 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '270deg' }], // Rotate to make it vertical
     position: 'absolute', // Position it absolutely within the container
     bottom: 0, // Align it to the bottom
+  },
+  processText: {
+    color: '#fff',
+    width: 55,
+    fontSize: 9,
+    wordWrap: 'break-word',
+    textAlign: 'center',
   },
   buttonContainer: {
     flexDirection: 'column',
