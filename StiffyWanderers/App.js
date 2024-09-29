@@ -175,9 +175,13 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   windGif: {
-    justifyContent: 'center',
+    position: 'absolute',
+    top: 180,
+    left: 120,
     width: 200,
     height: 200,
+    zIndex: 10,
+    transform: [{ rotate: '290deg' }],
   },
   bgDown: {
     position: 'absolute',
