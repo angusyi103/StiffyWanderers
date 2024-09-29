@@ -81,10 +81,10 @@ function HomeScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    setRain(true); //For test
-    if (!location) {
+    if (location) {
       fetchWeather(location.coords.latitude, location.coords.longitude);
     }
+    setRain(true); //For test
   }, [location]);
 
   let addressText = 'Fetching address...';
