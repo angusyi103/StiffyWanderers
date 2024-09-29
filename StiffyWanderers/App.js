@@ -279,6 +279,8 @@ const styles = StyleSheet.create({
   dayTitle:{
     color: '#fff',
     marginBottom: 10,
+    fontWeight: 'bold',
+    fontSize: 18,
   },
   day: {
     fontSize: 56,
@@ -320,10 +322,11 @@ const styles = StyleSheet.create({
   },
   processText: {
     color: '#fff',
-    width: 55,
-    fontSize: 9,
+    width: 56,
+    fontSize: 10,
     wordWrap: 'break-word',
     textAlign: 'center',
+    marginBottom: 10,
   },
   buttonContainer: {
     flexDirection: 'column',
