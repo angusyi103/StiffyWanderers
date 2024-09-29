@@ -277,7 +277,11 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   clouds: {
-
+    position: 'absolute',
+    right: 70,
+    top: 150,
+    width: 120,
+    height: 45,
   },
   sun: {
     position: 'absolute',
