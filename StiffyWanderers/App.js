@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Progress from 'react-native-progress';
 import Map from './Screens/Map';
+import { LinearGradient } from 'react-native-svg';
 
 function HomeScreen({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     width: '100%',
-    height: '100%',
+    height: '75%',
     zIndex: -1, // Ensure it's on top
     backgroundColor: '#8B94AE',
   },
