@@ -7,6 +7,7 @@ import * as Progress from 'react-native-progress';
 
 function HomeScreen({ navigation }) {
   const [location, setLocation] = useState(null);
+  const [address, setAddress] = useState(null); // State for address
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,6 +22,14 @@ function HomeScreen({ navigation }) {
 
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc);
+
+      let addressResults = await Location.reverseGeocodeAsync({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+      });
+      console.log('address', addressResults);
+      setAddress(addressResults[0]); // Get the first result
+
       setLoading(false);
     })();
   }, []);
@@ -29,7 +38,13 @@ function HomeScreen({ navigation }) {
   if (errorMsg) {
     locationText = errorMsg;
   } else if (location) {
-    locationText = `Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`;
+    const { latitude, longitude } = location.coords;
+    locationText = `Latitude: ${latitude}, Longitude: ${longitude}`;
+  }
+
+  let addressText = 'Fetching address...';
+  if (address) {
+    addressText = `${address.city}, ${address.region}, ${address.country}`;
   }
 
   return (
@@ -46,7 +61,7 @@ function HomeScreen({ navigation }) {
             </View>
             <View style={styles.locationContainer}>
               <Image style={styles.iconW} source={require('./assets/location-dot-solid1.png')} />
-              <Text style={styles.locationText}>{locationText}</Text>
+              <Text style={styles.locationText}>{addressText}</Text>
             </View>
           </View>
         </View>
@@ -121,7 +136,7 @@ const styles = StyleSheet.create({
     padding: 20,
     zIndex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   weatherInfo: {
     padding: 20,
