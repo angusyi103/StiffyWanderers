@@ -108,7 +108,7 @@ function HomeScreen({ navigation }) {
           source={require('./assets/rain-bg.png')} // The image to show when it rains
         />
       )}
-      <View style={[styles.bgB, { backgroundColor: rain ? '#8B94AE' : '#61A5DB' }]}>
+      <View style={[styles.bgB, { backgroundColor: rain ? 'transparent' : '#61A5DB' }]}>
         {showWaterGif && <Image style={styles.waterGif} source={require('./assets/water.gif')} />}
         {showWindGif && <Image style={styles.windGif} source={require('./assets/hairdry.gif')} />}
 
@@ -179,7 +179,8 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
-    zIndex: 1,  // Ensure it's on top
+    zIndex: -1,  // Ensure it's on top
+    backgroundColor: '#8B94AE',
   },
   bgB: {
     position: 'relative',
@@ -189,6 +190,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 4,
     borderBottomColor: '#111',
     backgroundColor: '#61A5DB',
+    zIndex:-1,
   },
   waterGif: {
     position: 'absolute',
@@ -212,6 +214,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     padding: 0,
     width: '100%',
+    zIndex: 0,
   },
   infoContainer: {
     padding: 20,
