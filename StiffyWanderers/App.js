@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -7,44 +7,70 @@ import * as Progress from 'react-native-progress';
 
 function HomeScreen({ navigation }) {
   const [location, setLocation] = useState(null);
-  const [address, setAddress] = useState(null); // State for address
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
+  const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  // Function to fetch weather data
+  const fetchWeather = async (latitude, longitude) => {
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=2c943a8c60ceab50d7013af3fed83e14`
+      );
+      console.log(response);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      setWeatherData(data);
+    } catch (error) {
+      console.error('Error fetching weather data: ', error);
+      setErrorMsg('Error fetching weather data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to get current location
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      setErrorMsg('Permission to access location was denied');
+      setLoading(false);
+      return;
+    }
+
+    let loc = await Location.getCurrentPositionAsync({});
+    setLocation(loc);
+
+    let addressResults = await Location.reverseGeocodeAsync({
+      latitude: loc.coords.latitude,
+      longitude: loc.coords.longitude,
+    });
+    console.log('address', addressResults);
+    setAddress(addressResults[0]); // Get the first result
+  };
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        setLoading(false);
-        return;
-      }
-
-      let loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc);
-
-      let addressResults = await Location.reverseGeocodeAsync({
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-      });
-      console.log('address', addressResults);
-      setAddress(addressResults[0]); // Get the first result
-
-      setLoading(false);
-    })();
+    getLocation();
   }, []);
 
-  let locationText = 'Fetching location...';
-  if (errorMsg) {
-    locationText = errorMsg;
-  } else if (location) {
-    const { latitude, longitude } = location.coords;
-    locationText = `Latitude: ${latitude}, Longitude: ${longitude}`;
-  }
+  useEffect(() => {
+    if (location) {
+      fetchWeather(location.coords.latitude, location.coords.longitude);
+    }
+  }, [location]);
 
   let addressText = 'Fetching address...';
   if (address) {
-    addressText = `${address.city}, ${address.region}, ${address.country}`;
+    addressText = `${address.city || ''}, ${address.region || ''}, ${address.country || ''}`;
+  }
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />; // Show loading indicator
+  }
+
+  if (errorMsg) {
+    return <Text>{errorMsg}</Text>; // Show error message
   }
 
   return (
@@ -52,10 +78,11 @@ function HomeScreen({ navigation }) {
       <View style={styles.bgB}>
         <Image style={styles.bgDown} source={require('./assets/morning-down2.png')} />
         <Image style={styles.sun} source={require('./assets/sun.png')} />
+
         <View style={styles.infoContainer}>
           <View style={styles.weatherInfo}>
             <View style={styles.temperatureContainer}>
-              <Text style={styles.temperature}>20</Text>
+              <Text style={styles.temperature}>{weatherData ? Math.round(weatherData.main.temp) : 'N/A'}</Text>
               <Text style={styles.temperatureUnit}>°C</Text>
               <Image style={styles.weatherIcon} source={require('./assets/sun_n_cloud.png')} />
             </View>
@@ -73,14 +100,7 @@ function HomeScreen({ navigation }) {
 
         <View style={styles.actionWrapper}>
           <View style={styles.progressContainer}>
-            <Progress.Bar
-              progress={0.3}
-              height={15}
-              width={400}
-              color="white"
-              style={styles.verticalBar}
-              borderRadius={20}
-            />
+            <Progress.Bar progress={0.3} height={15} width={400} color="white" style={styles.verticalBar} borderRadius={20} />
           </View>
           <Text style={styles.processText}>Weathering{'\n'}Process</Text>
           <View style={styles.buttonContainer}>
@@ -140,14 +160,13 @@ const styles = StyleSheet.create({
   },
   weatherInfo: {
     padding: 20,
-    flexDirection: 'column', // Change to column for proper stacking
-    alignItems: 'end', // Center elements horizontally
+    flexDirection: 'column',
+    alignItems: 'end',
   },
   temperatureContainer: {
     flexDirection: 'row',
-    alignItems: 'baseline', // Align text to the baseline for proper alignment
-    justifyContent: 'center', // Center temperature and unit horizontally
-    // marginBottom: 10, // Add space between temperature and icon
+    alignItems: 'baseline',
+    justifyContent: 'center',
   },
   temperature: {
     fontSize: 50,
@@ -158,18 +177,16 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   weatherIcon: {
-    width: 50, // Increase width for better visibility
+    width: 50,
     height: 32,
-    marginLeft: 10, // Add spacing between temperature and icon
-    paddingBottom: 0,
+    marginLeft: 10,
   },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    // marginTop: 10,
   },
-  locationText:{
+  locationText: {
     color: '#fff',
   },
   iconW: {
@@ -188,10 +205,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
-  name:{
+  name: {
     color: '#fff',
   },
-  sun:{
+  sun: {
     position: 'absolute',
     right: 70,
     top: 60,
@@ -206,13 +223,13 @@ const styles = StyleSheet.create({
     right: 20,
   },
   progressContainer: {
-    marginBottom: 200, // Increase the margin to create space below
+    marginBottom: 200,
     alignItems: 'center',
   },
   verticalBar: {
-    transform: [{ rotate: '270deg' }], // Rotate to make it vertical
-    position: 'absolute', // Position it absolutely within the container
-    bottom: 0, // Align it to the bottom
+    transform: [{ rotate: '270deg' }],
+    position: 'absolute',
+    bottom: 0,
   },
   processText: {
     color: '#fff',
