@@ -29,6 +29,7 @@ function HomeScreen({ navigation }) {
   const [showVideo, setShowVideo] = useState(false);
   const [showOpeningVideo, setShowOpeningVideo] = useState(true);
   const shakeY = useRef(new Animated.Value(0)).current;
+  const shakeRainY = useRef(new Animated.Value(0)).current;
 
   // Function to fetch progress from AsyncStorage
   const loadProgress = async () => {
@@ -273,6 +274,29 @@ function HomeScreen({ navigation }) {
     return () => shakeAnimation.stop(); // Clean up the animation on component unmount
   }, [shakeY]);
 
+  useEffect(() => {
+    const shakeAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shakeRainY, {
+          toValue: -5, // Move up by 10 units
+          duration: 1000, // Duration of 1 second (adjust for slower or faster animation)
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeRainY, {
+          toValue: 0, // Move down by 10 units
+          duration: 1000,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    shakeAnimation.start(); // Start the animation loop
+
+    return () => shakeAnimation.stop(); // Clean up the animation on component unmount
+  }, [shakeRainY]);
+
   if (errorMsg) {
     return <Text>{errorMsg}</Text>; // Show error message
   }
@@ -315,9 +339,11 @@ function HomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
       {rain && (
-        <Image
-          style={styles.rainOverlayImage}
-          source={require('./assets/rain-bg.png')} // The image to show when it rains
+        <Animated.Image
+          style={[styles.rainOverlayImage, { transform: [{ translateY: shakeRainY }] }]} // Apply shake animation
+          source={require('./assets/rain-bg.png')}
+          // style={styles.rainOverlayImage}
+          // source={require('./assets/rain-bg.png')}
         />
       )}
 
