@@ -11,6 +11,8 @@ function HomeScreen({ navigation }) {
   const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
+  const [showWaterGif, setShowWaterGif] = useState(false); // State to control GIF visibility
+  const [showWindGif, setShowWindGif] = useState(false);
 
   // Function to fetch weather data
   const fetchWeather = async (latitude, longitude) => {
@@ -50,24 +52,39 @@ function HomeScreen({ navigation }) {
     setAddress(addressResults[0]); // Get the first result
   };
 
+  const handleWaterPress = () => {
+    console.log('water press');
+    setShowWaterGif((prevState) => !prevState);
+  };
+
+  const handleGifClose = () => {
+    setShowWaterGif(false);
+    setShowWindGif(false);
+  };
+
+  const handleWindPress = () => {
+    console.log('wind press');
+    setShowWindGif((prevState) => !prevState);
+  };
+
   useEffect(() => {
     getLocation();
   }, []);
 
-  useEffect(() => {
-    if (location) {
-      fetchWeather(location.coords.latitude, location.coords.longitude);
-    }
-  }, [location]);
+  // useEffect(() => {
+  //   if (location) {
+  //     fetchWeather(location.coords.latitude, location.coords.longitude);
+  //   }
+  // }, [location]);
 
   let addressText = 'Fetching address...';
   if (address) {
     addressText = `${address.city || ''}, ${address.region || ''}, ${address.country || ''}`;
   }
 
-  if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />; // Show loading indicator
-  }
+  // if (loading) {
+  //   return <ActivityIndicator size="large" color="#0000ff" />; // Show loading indicator
+  // }
 
   if (errorMsg) {
     return <Text>{errorMsg}</Text>; // Show error message
@@ -76,6 +93,8 @@ function HomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.bgB}>
+        {showWaterGif && <Image style={styles.waterGif} source={require('./assets/water.gif')} />}
+
         <Image style={styles.bgDown} source={require('./assets/morning-down2.png')} />
         <Image style={styles.sun} source={require('./assets/sun.png')} />
 
@@ -104,11 +123,11 @@ function HomeScreen({ navigation }) {
           </View>
           <Text style={styles.processText}>Weathering{'\n'}Process</Text>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity style={styles.actionButton} onPress={handleWaterPress}>
               <Image source={require('./assets/water.png')} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton}>
-              <Image source={require('./assets/wind.png')} />
+              <Image source={require('./assets/wind.png')} onPress={handleWindPress} />
             </TouchableOpacity>
             <TouchableOpacity style={[styles.actionButton, styles.mapIcon]} onPress={() => navigation.navigate('Map', { location })}>
               <Image source={require('./assets/map.png')} />
@@ -145,6 +164,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 4,
     borderBottomColor: '#111',
     backgroundColor: '#61A5DB',
+  },
+  waterGif: {
+    justifyContent: 'center',
+    width: 300,
+    height: 300,
   },
   bgDown: {
     position: 'absolute',
