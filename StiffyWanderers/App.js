@@ -135,7 +135,10 @@ function HomeScreen({ navigation }) {
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={styles.day}>Day 1</Text>
+          <View style={styles.dayContainer}>
+            <Text style={styles.dayTitle}>Day</Text>
+            <Text style={styles.day}>1</Text>
+          </View>
           <Text style={styles.name}>Stiffy Wanderers</Text>
         </View>
 
@@ -269,8 +272,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     color: '#fff',
   },
+  dayContainer:{
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  dayTitle:{
+    color: '#fff',
+    marginBottom: 10,
+  },
   day: {
-    fontSize: 32,
+    fontSize: 56,
     fontWeight: 'bold',
     color: '#fff',
   },
