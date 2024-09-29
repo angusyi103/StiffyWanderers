@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, SafeAreaView } from 'r
 import * as Location from 'expo-location';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Svg, { Path } from 'react-native-svg';
+import * as Progress from 'react-native-progress';
 
 function HomeScreen({ navigation }) {
   const [location, setLocation] = useState(null);
@@ -56,16 +56,29 @@ function HomeScreen({ navigation }) {
           <Text style={styles.name}>Stiffy Wanderers</Text>
         </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Image source={require('./assets/water.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Image source={require('./assets/wind.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, styles.mapIcon]} onPress={() => navigation.navigate('Map', { location })}>
-            <Image source={require('./assets/map.png')} />
-          </TouchableOpacity>
+        <View style={styles.actionWrapper}>
+          <View style={styles.progressContainer}>
+            <Progress.Bar
+              progress={0.3}
+              height={15}
+              width={400}
+              color="white"
+              style={styles.verticalBar}
+              borderRadius={20}
+            />
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.actionButton}>
+              <Image source={require('./assets/water.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton}>
+              <Image source={require('./assets/wind.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.actionButton, styles.mapIcon]} onPress={() => navigation.navigate('Map', { location })}>
+              <Image source={require('./assets/map.png')} />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>
@@ -92,7 +105,7 @@ const styles = StyleSheet.create({
   bgB: {
     position: 'relative',
     flex: 1,
-    justifyContent: 'space-between', // Ensures content is properly spaced
+    justifyContent: 'space-between',
     borderTopColor: '#111',
     borderTopWidth: 4,
     borderBottomColor: '#111',
@@ -106,8 +119,8 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     padding: 20,
-    zIndex: 1, // Ensure it stays above the background image
-    justifyContent: 'center', // Ensure the content is centered vertically
+    zIndex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   weatherInfo: {
@@ -126,7 +139,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   temperatureUnit: {
-    fontSize: 24, // Adjust to a smaller size relative to temperature
+    fontSize: 24,
     color: '#fff',
   },
   weatherIcon: {
@@ -170,13 +183,26 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
   },
+  actionWrapper: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 50,
+    right: 20,
+  },
+  progressContainer: {
+    marginBottom: 200, // Increase the margin to create space below
+    alignItems: 'center',
+  },
+  verticalBar: {
+    transform: [{ rotate: '270deg' }], // Rotate to make it vertical
+    position: 'absolute', // Position it absolutely within the container
+    bottom: 0, // Align it to the bottom
+  },
   buttonContainer: {
-    position: 'absolute', // Make sure it's positioned absolutely
-    bottom: 50, // Adjust this to position it vertically
-    right: 20, // Align the container to the right edge
-    flexDirection: 'column', // Stack buttons vertically
-    alignItems: 'flex-end', // Align buttons to the right
-    justifyContent: 'space-between', // Center items vertically within the container
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   actionButton: {
     width: 40,
