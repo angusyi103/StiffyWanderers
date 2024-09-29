@@ -36,13 +36,13 @@ function HomeScreen({ navigation }) {
     <View style={{ flex: 1 }}>
       <View style={styles.bgB}>
         <Image style={styles.bgDown} source={require('./assets/morning-down2.png')} />
-
+        <Image style={styles.sun} source={require('./assets/sun.png')} />
         <View style={styles.infoContainer}>
           <View style={styles.weatherInfo}>
             <View style={styles.temperatureContainer}>
               <Text style={styles.temperature}>20</Text>
               <Text style={styles.temperatureUnit}>°C</Text>
-              <Image style={styles.weatherIcon} source={require('./assets/sun_n_cloud.png')} resizeMode="contain" />
+              <Image style={styles.weatherIcon} source={require('./assets/sun_n_cloud.png')} />
             </View>
             <View style={styles.locationContainer}>
               <Image style={styles.iconW} source={require('./assets/location-dot-solid1.png')} />
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline', // Align text to the baseline for proper alignment
     justifyContent: 'center', // Center temperature and unit horizontally
-    marginBottom: 10, // Add space between temperature and icon
+    // marginBottom: 10, // Add space between temperature and icon
   },
   temperature: {
     fontSize: 50,
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   weatherIcon: {
     width: 50, // Increase width for better visibility
-    height: 50,
+    height: 32,
     marginLeft: 10, // Add spacing between temperature and icon
     paddingBottom: 0,
   },
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    marginTop: 10,
+    // marginTop: 10,
   },
   locationText:{
     color: '#fff',
@@ -162,6 +162,13 @@ const styles = StyleSheet.create({
   },
   name:{
     color: '#fff',
+  },
+  sun:{
+    position: 'absolute',
+    right: 70,
+    top: 60,
+    width: 50,
+    height: 50,
   },
   buttonContainer: {
     position: 'absolute', // Make sure it's positioned absolutely
